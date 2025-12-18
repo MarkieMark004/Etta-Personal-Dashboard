@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Personal Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="profile">
+          <div class="avatar-wrap">
+            <!-- Replace src with your image -->
+            <img
+              class="avatar"
+              src="Images/profile.jpg"
+              alt="Profile picture"
+            />
+          </div>
+
+          <div class="welcome">
+            <div class="welcome-title">Welcome Markie!</div>
+          </div>
+        </div>
+
+        <div class="nav-title">Navigation</div>
+
+        <nav class="nav">
+          <a class="nav-link active" href="#">
+            <span class="nav-ico">🏠</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a class="nav-link" href="calendar.html">
+            <span class="nav-ico">🗓️</span>
+            <span>Calendar</span>
+          </a>
+
+          <a class="nav-link" href="#">
+            <span class="nav-ico">🧩</span>
+            <span>Projects</span>
+          </a>
+
+          <a class="nav-link" href="#">
+            <span class="nav-ico">📋</span>
+            <span>Timetable</span>
+          </a>
+
+          <a class="nav-link" href="#">
+            <span class="nav-ico">👥</span>
+            <span>Contacts</span>
+          </a>
+        </nav>
+      </aside>
+
+      <!-- MAIN -->
+      <div class="main">
+        <header class="topbar">
+          <div class="brand">Dashboard</div>
+
+          <button
+            id="themeBtn"
+            class="btn icon"
+            type="button"
+            aria-label="Toggle theme"
+          >
+            🌙
+          </button>
+        </header>
+
+        <main class="grid">
+          <section class="card hero">
+            <div class="time-wrap">
+              <div id="clock" class="clock">00:00:00</div>
+              <div id="date" class="date">Loading date…</div>
+            </div>
+
+            <div class="greet-wrap">
+              <h1 id="greeting" class="greeting">Hello 👋</h1>
+
+              <label class="field">
+                <span>Your main focus today</span>
+                <input
+                  id="focusInput"
+                  type="text"
+                  placeholder="e.g., Finish portfolio section"
+                />
+              </label>
+              <div id="focusSaved" class="muted"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-title">
+              <h2>To-Do</h2>
+              <button id="clearDoneBtn" class="btn subtle" type="button">
+                Clear done
+              </button>
+            </div>
+
+            <form id="todoForm" class="row">
+              <input
+                id="todoInput"
+                type="text"
+                placeholder="Add a task..."
+                autocomplete="off"
+              />
+              <button class="btn" type="submit">Add</button>
+            </form>
+
+            <ul id="todoList" class="list"></ul>
+            <div id="todoEmpty" class="muted">No tasks yet. Add one above.</div>
+          </section>
+
+          <section class="card">
+            <div class="card-title">
+              <h2>Quick Notes</h2>
+              <button id="clearNotesBtn" class="btn subtle" type="button">
+                Clear
+              </button>
+            </div>
+            <textarea
+              id="notes"
+              class="textarea"
+              placeholder="Write anything..."
+            ></textarea>
+            <div class="muted small">Autosaves locally.</div>
+          </section>
+
+          <!-- Placeholder for your chart section -->
+          <section class="card chart">
+            <div class="card-title">
+              <h2>BTC / NZD</h2>
+              <span class="muted small">TradingView</span>
+            </div>
+
+            <div class="tv-wrap">
+              <div id="tv-advanced-chart"></div>
+            </div>
+
+            <div class="muted small" style="margin-top: 10px">
+              Charts by TradingView
+            </div>
+          </section>
+        </main>
+
+        <footer class="footer muted small">Built by Markie Mark</footer>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

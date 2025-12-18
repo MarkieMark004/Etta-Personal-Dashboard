@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendar</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
+        <div class="profile">
+          <div class="avatar-wrap">
+            <img
+              class="avatar"
+              src="Images/profile.jpg"
+              alt="Profile picture"
+            />
+          </div>
+
+          <div class="welcome">
+            <div class="welcome-title">Welcome Markie!</div>
+          </div>
+        </div>
+
+        <div class="nav-title">Navigation</div>
+
+        <nav class="nav">
+          <a class="nav-link" href="index.html">
+            <span class="nav-ico">🏠</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a class="nav-link active" href="calendar.html">
+            <span class="nav-ico">🗓️</span>
+            <span>Calendar</span>
+          </a>
+
+          <a class="nav-link" href="#">
+            <span class="nav-ico">🧩</span>
+            <span>Projects</span>
+          </a>
+
+          <a class="nav-link" href="#">
+            <span class="nav-ico">📋</span>
+            <span>Timetable</span>
+          </a>
+
+          <a class="nav-link" href="#">
+            <span class="nav-ico">👥</span>
+            <span>Contacts</span>
+          </a>
+        </nav>
+      </aside>
+
+      <!-- MAIN -->
+      <div class="main">
+        <header class="topbar">
+          <div class="brand">Calendar</div>
+
+          <button
+            id="themeBtn"
+            class="btn icon"
+            type="button"
+            aria-label="Toggle theme"
+          >
+            🌙
+          </button>
+        </header>
+
+        <main class="grid">
+          <section class="card calendar-card" id="calendarCard">
+            <div class="cal-header">
+              <div class="cal-left">
+                <button class="btn subtle" id="prevMonth" type="button">
+                  ◀
+                </button>
+                <button class="btn subtle" id="todayBtn" type="button">
+                  Today
+                </button>
+                <button class="btn subtle" id="nextMonth" type="button">
+                  ▶
+                </button>
+              </div>
+
+              <div class="cal-title">
+                <h2 id="monthLabel">Month YYYY</h2>
+                <div class="muted small" id="tzLabel">Pacific/Auckland</div>
+              </div>
+
+              <div class="cal-right">
+                <button class="btn" id="addEventBtn" type="button">
+                  + Add Event
+                </button>
+              </div>
+            </div>
+
+            <div class="cal-weekdays">
+              <div>Sun</div>
+              <div>Mon</div>
+              <div>Tue</div>
+              <div>Wed</div>
+              <div>Thu</div>
+              <div>Fri</div>
+              <div>Sat</div>
+            </div>
+
+            <div id="calGrid" class="cal-grid"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-title">
+              <h2>Selected Day</h2>
+              <span class="muted small" id="selectedDayLabel">None</span>
+            </div>
+
+            <div id="dayEvents" class="day-events muted">
+              Click a day to view events.
+            </div>
+          </section>
+        </main>
+
+        <footer class="footer muted small">Built by Markie</footer>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-backdrop" id="modalBackdrop" aria-hidden="true"></div>
+
+    <div
+      class="modal"
+      id="eventModal"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+    >
+      <div class="modal-card">
+        <div class="card-title">
+          <h2 id="modalTitle">Add Event</h2>
+          <button
+            class="icon-btn"
+            id="closeModalBtn"
+            type="button"
+            aria-label="Close"
+          >
+            ✖
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="row">
+            <label class="field" style="flex: 1">
+              <span>Start Date</span>
+              <input id="eventStartDate" type="date" />
+            </label>
+
+            <label class="field" style="flex: 1">
+              <span>End Date</span>
+              <input id="eventEndDate" type="date" />
+            </label>
+          </div>
+
+          <label class="field">
+            <span>Title</span>
+            <input
+              id="eventTitle"
+              type="text"
+              placeholder="e.g., Dance class 5:30pm"
+            />
+          </label>
+
+          <div class="row">
+            <label class="field" style="flex: 1">
+              <span>Start (optional)</span>
+              <input id="eventStart" type="time" />
+            </label>
+
+            <label class="field" style="flex: 1">
+              <span>End (optional)</span>
+              <input id="eventEnd" type="time" />
+            </label>
+          </div>
+
+          <label class="field color-field">
+            <span>Color</span>
+            <input id="eventColor" type="color" value="#00b5d9" />
+          </label>
+
+          <label class="field">
+            <span>Notes (optional)</span>
+            <textarea
+              id="eventNotes"
+              class="textarea"
+              placeholder="Extra details..."
+            ></textarea>
+          </label>
+
+          <div class="row" style="justify-content: flex-end">
+            <button class="btn subtle" id="cancelBtn" type="button">
+              Cancel
+            </button>
+            <button class="btn" id="saveBtn" type="button">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="calendar.js"></script>
+  </body>
+</html>
