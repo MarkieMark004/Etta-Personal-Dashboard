@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notebook</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <div class="app">
+      <!-- SIDEBAR (YOUR CODE - UNCHANGED) -->
+      <aside class="sidebar">
+        <div class="profile">
+          <!-- Sidebar Logo -->
+
+          <div class="avatar-wrap">
+            <!-- Replace src with your image -->
+            <img
+              class="avatar"
+              src="Images/profile.jpg"
+              alt="Profile picture"
+            />
+          </div>
+
+          <!-- Sidebar Logo -->
+          <div class="welcome">
+            <div class="welcome-title">Welcome Markie!</div>
+          </div>
+        </div>
+
+        <div class="nav-title">Navigation</div>
+
+        <nav class="nav">
+          <a class="nav-link" href="#">
+            <span class="nav-ico">🏠</span>
+            <span>Dashboard</span>
+          </a>
+
+          <a class="nav-link" href="calendar.html">
+            <span class="nav-ico">🗓️</span>
+            <span>Calendar</span>
+          </a>
+
+          <a class="nav-link active" href="notebook.html">
+            <span class="nav-ico">🧩</span>
+            <span>Notebook</span>
+          </a>
+
+          <a class="nav-link" href="#">
+            <span class="nav-ico">📋</span>
+            <span>Timetable</span>
+          </a>
+
+          <a class="nav-link" href="#">
+            <span class="nav-ico">👥</span>
+            <span>Contacts</span>
+          </a>
+        </nav>
+      </aside>
+
+      <div class="note-context-menu is-hidden">
+        <button type="button" class="context-edit">Edit</button>
+        <button type="button" class="context-favorite">⭐ Favorite</button>
+        <button type="button" class="context-delete">Delete</button>
+      </div>
+
+      <!-- NOTEBOOK LAYOUT WRAP (everything right of sidebar) -->
+      <main class="notebook">
+        <!-- PAGES COLUMN (Search + Pages list) -->
+        <section class="pages-panel">
+          <div class="pages-search">
+            <input
+              type="text"
+              class="pages-search-input"
+              placeholder="Search Pages ..."
+            />
+          </div>
+
+          <div class="pages-title">Pages</div>
+
+          <div class="pages-list">
+            <!-- TEMPLATE: page item (kept hidden, JS clones this) -->
+            <button
+              class="page-item is-hidden"
+              type="button"
+              data-template="page-item"
+            >
+              <div class="page-item-title"></div>
+              <div class="page-item-snippet"></div>
+            </button>
+          </div>
+        </section>
+
+        <!-- NEW NOTE MODAL -->
+        <div class="note-modal is-hidden">
+          <div class="note-modal-dialog">
+            <div class="note-modal-header">
+              <div class="note-modal-icon">📘</div>
+            </div>
+
+            <div class="note-modal-body">
+              <!-- Title input -->
+              <div class="note-modal-title-row">
+                <input
+                  type="text"
+                  class="note-modal-title"
+                  placeholder="Title Message Here ..."
+                />
+              </div>
+
+              <!-- Created row -->
+              <div class="note-modal-meta">
+                <span class="note-meta-icon">●</span>
+                <span class="note-meta-label">Created:</span>
+                <span class="note-meta-date" id="noteCreatedAt"></span>
+              </div>
+
+              <!-- Main text area -->
+              <div class="note-modal-editor">
+                <textarea
+                  class="note-modal-textarea"
+                  placeholder="Press Enter to Continue with an Empty Page ..."
+                ></textarea>
+              </div>
+            </div>
+
+            <div class="note-modal-footer">
+              <button class="note-modal-save" type="button">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN NOTES AREA -->
+        <section class="notes-panel">
+          <!-- TOP BAR -->
+          <header class="notes-topbar">
+            <h2 class="notes-title">
+              <span class="title-icon">📘</span>
+              My Favorite
+            </h2>
+
+            <div class="new-notes">
+              <button class="new-note-btn" type="button">New Notes</button>
+            </div>
+          </header>
+
+          <!-- NOTES GRID -->
+          <div class="notes-grid">
+            <article
+              class="note-card is-hidden"
+              data-template="note-card"
+              role="button"
+              tabindex="0"
+            >
+              <div class="note-preview">First Lines of Text Here ...</div>
+              <div class="note-divider"></div>
+              <div class="note-title">Title Here</div>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="notebook.js"></script>
+  </body>
+</html>

@@ -697,3 +697,266 @@ body.light .event-row {
   flex-direction: column;
   align-items: flex-start;
 }
+
+/* Notebook CSS */
+
+.is-hidden {
+  display: none !important;
+}
+
+.notebook {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  padding-top: 8rem;
+}
+
+.pages-panel {
+  padding: 24px;
+}
+
+.notes-panel {
+  padding: 24px;
+}
+
+.page-item-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.page-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.page-item-snippet {
+  font-size: 12px;
+  opacity: 0.8; /* a little softer */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.favorite-btn {
+  padding: 10px 30px;
+  border-radius: 10px;
+}
+
+.new-note-btn {
+  padding: 10px 30px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.notes-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  width: 80%;
+}
+
+.note-card {
+  background: #ffffff;
+  color: #000000;
+  border-radius: 10px;
+  padding: 12px;
+
+  /* makes title sit at bottom */
+  display: flex;
+  flex-direction: column;
+  min-height: 160px; /* adjust card height to taste */
+}
+
+.note-preview {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+
+.note-divider {
+  height: 1px;
+  background: #000000;
+  margin: 10px 0;
+  opacity: 0.2; /* lighter line, still black */
+}
+
+.note-title {
+  /* bottom title */
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.notes-panel {
+  border-left: 1px solid #ffffff;
+}
+
+.pages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 220px));
+  gap: 24px;
+}
+
+/* Utility from earlier (if not already added) */
+.is-hidden {
+  display: none !important;
+}
+
+/* Full-screen overlay container */
+.note-modal {
+  position: fixed;
+  inset: 0; /* top:0; right:0; bottom:0; left:0; */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* Dim the background */
+.note-modal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4); /* overlay only */
+}
+
+/* Centered box */
+.note-modal-dialog {
+  position: relative;
+  max-width: 720px;
+  width: 90%;
+  min-height: 420px;
+
+  background: #0b0f1a;
+  border-radius: 20px;
+
+  padding: 32px 40px;
+  z-index: 1;
+}
+
+/* Layout inside modal */
+.note-modal-header {
+  margin-bottom: 16px;
+}
+
+.note-modal-icon {
+  font-size: 28px;
+}
+
+.note-modal-title-row {
+  margin-bottom: 8px;
+}
+
+.note-modal-title {
+  width: 100%;
+  padding: 20px 20px;
+  border-radius: 6px;
+  border: none;
+  outline: none;
+}
+
+.note-modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+
+.note-modal-editor {
+  flex: 1;
+}
+
+.note-modal-textarea {
+  width: 100%;
+  min-height: 450px;
+  resize: vertical;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  padding: 12px;
+}
+
+.note-modal-footer {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.note-modal-save {
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+}
+
+/* Custom Menu Right CLick Menu */
+
+.note-context-menu {
+  position: fixed;
+  z-index: 2000;
+  min-width: 120px;
+  padding: 4px;
+  border-radius: 8px;
+
+  /* you can change these colours */
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.note-context-menu button {
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.note-context-menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.note-context-menu button:hover {
+  background: #f2f2f2;
+}
+
+.context-favorite {
+  color: #333;
+}
+
+.context-delete {
+  color: #c62828;
+}
+
+.note-context-menu button {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.note-context-menu button + button {
+  margin-top: 4px;
+}
+
+/* For search filtering only (kept separate from .is-hidden template) */
+.page-item.is-filtered {
+  display: none;
+}

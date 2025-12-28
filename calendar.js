@@ -1,4 +1,18 @@
 const HOLIDAYS_BY_YEAR = {
+  2025: [
+    {
+      startDate: "2025-12-25",
+      endDate: "2025-12-25",
+      title: "Christmas Day",
+      isHoliday: true,
+    },
+    {
+      startDate: "2025-12-26",
+      endDate: "2025-12-26",
+      title: "Boxing Day",
+      isHoliday: true,
+    },
+  ],
   2026: [
     {
       startDate: "2026-01-01",
@@ -64,7 +78,7 @@ const HOLIDAYS_BY_YEAR = {
       endDate: "2026-12-28",
       title: "Boxing Day (observed)",
       isHoliday: true,
-    }, // adjust if needed
+    },
   ],
 };
 
