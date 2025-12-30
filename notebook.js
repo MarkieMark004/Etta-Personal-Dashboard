@@ -19,6 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const searchInput = document.querySelector(".pages-search-input");
 
+  const themeBtn = document.querySelector("#themeBtn");
+
   // Templates
   const pageTemplate =
     pagesList && pagesList.querySelector('[data-template="page-item"]');
@@ -513,6 +515,29 @@ document.addEventListener("DOMContentLoaded", () => {
           pageBtn.classList.add("is-filtered");
         }
       });
+    });
+  }
+
+  // --- Theme toggle ---
+
+  if (themeBtn) {
+    const savedTheme = localStorage.getItem("theme")
+      ? JSON.parse(localStorage.getItem("theme"))
+      : "dark";
+
+    if (savedTheme === "light") {
+      document.body.classList.add("light");
+    }
+
+    themeBtn.textContent = document.body.classList.contains("light")
+      ? "☀️"
+      : "🌙";
+
+    themeBtn.addEventListener("click", () => {
+      document.body.classList.toggle("light");
+      const isLight = document.body.classList.contains("light");
+      themeBtn.textContent = isLight ? "☀️" : "🌙";
+      localStorage.setItem("theme", JSON.stringify(isLight ? "light" : "dark"));
     });
   }
 
