@@ -51,6 +51,11 @@ const storage = {
   },
 };
 
+function getId() {
+  if (crypto?.randomUUID) return crypto.randomUUID();
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 // ---------- Mobile sidebar ----------
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
@@ -233,7 +238,7 @@ todoForm.addEventListener("submit", (e) => {
   if (!text) return;
 
   todos.unshift({
-    id: crypto.randomUUID(),
+    id: getId(),
     text,
     done: false,
     createdAt: Date.now(),

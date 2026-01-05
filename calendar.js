@@ -106,6 +106,11 @@ const storage = {
   },
 };
 
+function getId() {
+  if (crypto?.randomUUID) return crypto.randomUUID();
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
 // ---------- Mobile sidebar ----------
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
@@ -512,7 +517,7 @@ function saveEventFromModal() {
   }
 
   const newEvent = {
-    id: crypto.randomUUID(),
+    id: getId(),
     startDate,
     endDate,
     title,

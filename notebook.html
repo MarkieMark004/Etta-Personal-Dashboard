@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Notebook</title>
+    <meta name="theme-color" content="#0b0f1a" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="Images/etta-logo-bg.png" />
     <link rel="stylesheet" href="style.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
@@ -40,11 +43,7 @@
           aria-controls="sidebarNav"
         >
           <span>Menu</span>
-          <img
-            class="toggle-ico-img"
-            src="Images/etta-logo-bg.png"
-            alt="Menu"
-          />
+          <span class="toggle-ico" aria-hidden="true"></span>
         </button>
 
         <div class="sidebar-mobile-actions" aria-hidden="true"></div>
@@ -189,5 +188,6 @@
     </div>
 
     <script src="notebook.js"></script>
+    <script src="pwa.js"></script>
   </body>
 </html>
