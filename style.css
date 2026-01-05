@@ -791,6 +791,16 @@ body.light .event-row {
   margin-bottom: 12px;
 }
 
+.pages-actions {
+  margin-bottom: 12px;
+}
+
+.pages-actions .topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .notes-panel {
   padding: 24px;
 }
@@ -835,6 +845,12 @@ body.light .event-row {
   align-items: center;
   margin-bottom: 24px;
   width: 80%;
+}
+
+.notes-topbar .topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .note-card {

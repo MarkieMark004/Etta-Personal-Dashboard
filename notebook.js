@@ -27,7 +27,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const sidebarMobileActions = document.querySelector(
     ".sidebar-mobile-actions"
   );
-  const topbarRight = document.querySelector(".notes-topbar .topbar-right");
+  const pagesActions = document.querySelector(".pages-actions");
+  const topbarRight = document.querySelector(".topbar-right");
 
   // Templates
   const pageTemplate =
@@ -56,9 +57,31 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  if (sidebarMobileActions && topbarRight) {
-    sidebarMobileActions.appendChild(topbarRight);
-    sidebarMobileActions.setAttribute("aria-hidden", "false");
+  const actionsMedia = window.matchMedia("(max-width: 980px)");
+
+  function syncNotebookActions(event) {
+    if (!sidebarMobileActions || !topbarRight) return;
+
+    const isMobile = event ? event.matches : actionsMedia.matches;
+
+    if (isMobile) {
+      sidebarMobileActions.appendChild(topbarRight);
+      sidebarMobileActions.setAttribute("aria-hidden", "false");
+      if (pagesActions) pagesActions.setAttribute("aria-hidden", "true");
+    } else {
+      if (pagesActions && topbarRight.parentElement !== pagesActions) {
+        pagesActions.appendChild(topbarRight);
+        pagesActions.setAttribute("aria-hidden", "false");
+      }
+      sidebarMobileActions.setAttribute("aria-hidden", "true");
+    }
+  }
+
+  syncNotebookActions();
+  if (actionsMedia.addEventListener) {
+    actionsMedia.addEventListener("change", syncNotebookActions);
+  } else {
+    actionsMedia.addListener(syncNotebookActions);
   }
 
   // ---------- Helpers: storage ----------
