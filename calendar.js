@@ -106,6 +106,30 @@ const storage = {
   },
 };
 
+// ---------- Mobile sidebar ----------
+function setupSidebarToggle() {
+  const sidebar = document.querySelector(".sidebar");
+  const toggle = document.querySelector(".sidebar-toggle");
+  if (!sidebar || !toggle) return;
+
+  toggle.addEventListener("click", () => {
+    const isOpen = sidebar.classList.toggle("is-open");
+    toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  });
+
+  const navLinks = sidebar.querySelectorAll(".nav-link");
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      if (window.matchMedia("(max-width: 980px)").matches) {
+        sidebar.classList.remove("is-open");
+        toggle.setAttribute("aria-expanded", "false");
+      }
+    });
+  });
+}
+
+setupSidebarToggle();
+
 const EVENTS_KEY = "calendarEvents_v1";
 
 let viewDate = new Date();

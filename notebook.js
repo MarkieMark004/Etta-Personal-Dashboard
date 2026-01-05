@@ -8,6 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const noteTextarea = document.querySelector(".note-modal-textarea");
   const noteCreatedAtSpan = document.getElementById("noteCreatedAt");
   const saveBtn = document.querySelector(".note-modal-save");
+  const noteExpandBtn = document.querySelector(".note-modal-expand-btn");
+  const noteModalDialog = document.querySelector(".note-modal-dialog");
 
   const pagesList = document.querySelector(".pages-list");
   const notesGrid = document.querySelector(".notes-grid");
@@ -20,6 +22,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.querySelector(".pages-search-input");
 
   const themeBtn = document.querySelector("#themeBtn");
+  const sidebar = document.querySelector(".sidebar");
+  const sidebarToggle = document.querySelector(".sidebar-toggle");
+  const sidebarMobileActions = document.querySelector(
+    ".sidebar-mobile-actions"
+  );
+  const topbarRight = document.querySelector(".notes-topbar .topbar-right");
 
   // Templates
   const pageTemplate =
@@ -29,6 +37,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentNoteId = null;
   let currentCreatedAt = "";
+
+  // ---------- Mobile sidebar ----------
+  if (sidebar && sidebarToggle) {
+    sidebarToggle.addEventListener("click", () => {
+      const isOpen = sidebar.classList.toggle("is-open");
+      sidebarToggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+
+    const navLinks = sidebar.querySelectorAll(".nav-link");
+    navLinks.forEach((link) => {
+      link.addEventListener("click", () => {
+        if (window.matchMedia("(max-width: 980px)").matches) {
+          sidebar.classList.remove("is-open");
+          sidebarToggle.setAttribute("aria-expanded", "false");
+        }
+      });
+    });
+  }
+
+  if (sidebarMobileActions && topbarRight) {
+    sidebarMobileActions.appendChild(topbarRight);
+    sidebarMobileActions.setAttribute("aria-hidden", "false");
+  }
 
   // ---------- Helpers: storage ----------
 
@@ -296,6 +327,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!noteModal.classList.contains("is-hidden")) {
       noteModal.classList.add("is-hidden");
     }
+    noteModal.classList.remove("is-expanded");
+    if (noteExpandBtn) noteExpandBtn.setAttribute("aria-expanded", "false");
   }
 
   // ---------- Event wiring ----------
@@ -485,6 +518,14 @@ document.addEventListener("DOMContentLoaded", () => {
       updateRenderedNote(notes[index]);
 
       closeModal();
+    });
+  }
+
+  // Expand modal to full screen
+  if (noteExpandBtn && noteModal && noteModalDialog) {
+    noteExpandBtn.addEventListener("click", () => {
+      const isExpanded = noteModal.classList.toggle("is-expanded");
+      noteExpandBtn.setAttribute("aria-expanded", isExpanded ? "true" : "false");
     });
   }
 

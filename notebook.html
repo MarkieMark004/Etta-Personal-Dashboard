@@ -33,9 +33,25 @@
           </div>
         </div>
 
+        <button
+          class="sidebar-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="sidebarNav"
+        >
+          <span>Menu</span>
+          <img
+            class="toggle-ico-img"
+            src="Images/etta-logo-bg.png"
+            alt="Menu"
+          />
+        </button>
+
+        <div class="sidebar-mobile-actions" aria-hidden="true"></div>
+
         <div class="nav-title">Navigation</div>
 
-        <nav class="nav">
+        <nav class="nav" id="sidebarNav">
           <a class="nav-link" href="index.html">
             <span class="nav-ico">🏠</span>
             <span>Dashboard</span>
@@ -137,7 +153,7 @@
         <section class="notes-panel">
           <!-- TOP BAR -->
           <header class="notes-topbar">
-            <h2>My Favorite</h2>
+            <h2>⭐ My Favorite</h2>
 
             <div class="topbar-right">
               <button
