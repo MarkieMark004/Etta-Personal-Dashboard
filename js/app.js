@@ -80,6 +80,63 @@ function setupSidebarToggle() {
 
 setupSidebarToggle();
 
+let auth = null;
+let db = null;
+let currentUser = null;
+let unsubscribeTodos = null;
+let unsubscribeNotes = null;
+
+function initAuthListener() {
+  if (!window.initFirebase) return;
+  const app = window.initFirebase();
+  if (!app || !window.firebase || !window.firebase.auth) return;
+
+  auth = window.firebase.auth();
+  db = window.firebase.firestore ? window.firebase.firestore() : null;
+
+  if (unsubscribeTodos) {
+    unsubscribeTodos();
+    unsubscribeTodos = null;
+  }
+  if (unsubscribeNotes) {
+    unsubscribeNotes();
+    unsubscribeNotes = null;
+  }
+
+  auth.onAuthStateChanged((user) => {
+    currentUser = user || null;
+    if (user) {
+      console.log("Signed in:", user.email || user.uid);
+      if (db) {
+        unsubscribeTodos = db
+          .collection("users")
+          .doc(user.uid)
+          .collection("todos")
+          .orderBy("createdAt", "desc")
+          .onSnapshot((snap) => {
+            todos = snap.docs.map((doc) => doc.data());
+            renderTodos();
+          });
+        const notesEl = $("#notes");
+        if (notesEl) {
+          unsubscribeNotes = db
+            .collection("users")
+            .doc(user.uid)
+            .collection("notes")
+            .doc("quick")
+            .onSnapshot((doc) => {
+              const data = doc.exists ? doc.data() : {};
+              notesEl.value = data?.content || "";
+            });
+        }
+      }
+    } else {
+      console.log("Signed out");
+      window.location.href = "login.html";
+    }
+  });
+}
+
 // ---------- Clock + Date + Greeting ----------
 const clockEl = $("#clock");
 const dateEl = $("#date");
@@ -161,13 +218,29 @@ let notesTimer = null;
 notesEl.addEventListener("input", () => {
   clearTimeout(notesTimer);
   notesTimer = setTimeout(() => {
-    storage.set("notes", notesEl.value);
+    if (db && currentUser) {
+      db.collection("users")
+        .doc(currentUser.uid)
+        .collection("notes")
+        .doc("quick")
+        .set({ content: notesEl.value }, { merge: true });
+    } else {
+      storage.set("notes", notesEl.value);
+    }
   }, 250);
 });
 
 clearNotesBtn.addEventListener("click", () => {
   notesEl.value = "";
-  storage.set("notes", "");
+  if (db && currentUser) {
+    db.collection("users")
+      .doc(currentUser.uid)
+      .collection("notes")
+      .doc("quick")
+      .set({ content: "" }, { merge: true });
+  } else {
+    storage.set("notes", "");
+  }
 });
 
 // ---------- Todo ----------
@@ -180,6 +253,7 @@ const clearDoneBtn = $("#clearDoneBtn");
 let todos = storage.get("todos", []);
 
 function renderTodos() {
+  if (!todoList || !todoEmpty) return;
   todoList.innerHTML = "";
 
   if (!todos.length) {
@@ -199,27 +273,43 @@ function renderTodos() {
     cb.type = "checkbox";
     cb.checked = t.done;
     cb.addEventListener("change", () => {
-      t.done = cb.checked;
-      persist();
-      renderTodos();
+      if (db && currentUser && t.id) {
+        db.collection("users")
+          .doc(currentUser.uid)
+          .collection("todos")
+          .doc(t.id)
+          .update({ done: cb.checked });
+      } else {
+        t.done = cb.checked;
+        persist();
+        renderTodos();
+      }
     });
 
-    const text = document.createElement("div");
-    text.className = "text";
-    text.textContent = t.text;
+    const textEl = document.createElement("div");
+    textEl.className = "text";
+    textEl.textContent = t.text;
 
     left.appendChild(cb);
-    left.appendChild(text);
+    left.appendChild(textEl);
 
     const del = document.createElement("button");
     del.className = "icon-btn";
     del.type = "button";
     del.title = "Delete";
-    del.textContent = "🗑️";
+    del.textContent = "Delete";
     del.addEventListener("click", () => {
-      todos = todos.filter((x) => x.id !== t.id);
-      persist();
-      renderTodos();
+      if (db && currentUser && t.id) {
+        db.collection("users")
+          .doc(currentUser.uid)
+          .collection("todos")
+          .doc(t.id)
+          .delete();
+      } else {
+        todos = todos.filter((x) => x.id !== t.id);
+        persist();
+        renderTodos();
+      }
     });
 
     li.appendChild(left);
@@ -232,28 +322,60 @@ function persist() {
   storage.set("todos", todos);
 }
 
-todoForm.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const text = todoInput.value.trim();
-  if (!text) return;
+if (todoForm && todoInput) {
+  todoForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const text = todoInput.value.trim();
+    if (!text) return;
 
-  todos.unshift({
-    id: getId(),
-    text,
-    done: false,
-    createdAt: Date.now(),
+    const id = getId();
+    const payload = {
+      id,
+      text,
+      done: false,
+      createdAt: Date.now(),
+    };
+
+    if (db && currentUser) {
+      db.collection("users")
+        .doc(currentUser.uid)
+        .collection("todos")
+        .doc(id)
+        .set(payload);
+    } else {
+      todos.unshift(payload);
+      persist();
+      renderTodos();
+    }
+
+    todoInput.value = "";
   });
+}
 
-  todoInput.value = "";
-  persist();
-  renderTodos();
-});
-
-clearDoneBtn.addEventListener("click", () => {
-  todos = todos.filter((t) => !t.done);
-  persist();
-  renderTodos();
-});
+if (clearDoneBtn) {
+  clearDoneBtn.addEventListener("click", () => {
+    if (db && currentUser) {
+      const batch = db.batch();
+      todos
+        .filter((t) => t.done)
+        .forEach((t) => {
+          const ref = db
+            .collection("users")
+            .doc(currentUser.uid)
+            .collection("todos")
+            .doc(t.id);
+          batch.delete(ref);
+        });
+      batch.commit();
+    } else {
+      todos = todos.filter((t) => !t.done);
+      persist();
+      renderTodos();
+    }
+  });
+}
 
 renderTodos();
 loadTradingViewChart();
+initAuthListener();
+

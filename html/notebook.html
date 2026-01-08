@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Notebook</title>
     <meta name="theme-color" content="#0b0f1a" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="Images/etta-logo-bg.png" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="apple-touch-icon" href="../Images/etta-logo-bg.png" />
+    <link rel="stylesheet" href="../style.css" />
     <link
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
       rel="stylesheet"
@@ -15,60 +15,7 @@
   </head>
 
   <body>
-    <div class="app">
-      <!-- SIDEBAR (YOUR CODE - UNCHANGED) -->
-      <aside class="sidebar">
-        <div class="profile">
-          <!-- Sidebar Logo -->
-
-          <div class="avatar-wrap">
-            <!-- Replace src with your image -->
-            <img
-              class="avatar"
-              src="Images/profile.jpg"
-              alt="Profile picture"
-            />
-          </div>
-
-          <!-- Sidebar Logo -->
-          <div class="welcome">
-            <div class="welcome-title">Welcome Markie!</div>
-          </div>
-        </div>
-
-        <button
-          class="sidebar-toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="sidebarNav"
-        >
-          <span>Menu</span>
-          <span class="toggle-ico" aria-hidden="true"></span>
-        </button>
-
-        <div class="sidebar-mobile-actions" aria-hidden="true"></div>
-
-        <div class="nav-title">Navigation</div>
-
-        <nav class="nav" id="sidebarNav">
-          <a class="nav-link" href="index.html">
-            <span class="nav-ico">🏠</span>
-            <span>Dashboard</span>
-          </a>
-
-          <a class="nav-link" href="calendar.html">
-            <span class="nav-ico">🗓️</span>
-            <span>Calendar</span>
-          </a>
-
-          <a class="nav-link active" href="notebook.html">
-            <span class="nav-ico">🧩</span>
-            <span>Notebook</span>
-          </a>
-        </nav>
-      </aside>
-
-      <div class="note-context-menu is-hidden">
+    <div class="app">      <aside class="sidebar" id="sidebarMount"></aside><div class="note-context-menu is-hidden">
         <button type="button" class="context-edit">Edit</button>
         <button type="button" class="context-favorite">⭐ Favorite</button>
         <button type="button" class="context-delete">Delete</button>
@@ -188,8 +135,21 @@
       </main>
     </div>
 
-    <script src="notebook.js"></script>
-    <script src="pwa.js"></script>
+    <script src="../layout/layout-sidebar.js"></script>
+    <script>
+      window.renderSidebar("notebook");
+    </script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="../firebase.js"></script>
+    <script src="../js/notebook.js"></script>
+    <script src="../pwa.js"></script>
   </body>
 </html>
+
+
+
+
+
 

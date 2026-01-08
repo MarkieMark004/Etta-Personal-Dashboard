@@ -60,6 +60,45 @@ body {
   color: var(--text);
 }
 
+/* LOGIN */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.login-wrap {
+  width: min(520px, 100%);
+}
+
+.login-card {
+  display: grid;
+  gap: 14px;
+  text-align: center;
+}
+
+.login-logo {
+  width: 80px;
+  height: 80px;
+  border-radius: 18px;
+  object-fit: cover;
+  margin: 0 auto;
+  border: 1px solid var(--border);
+}
+
+.login-title {
+  margin: 0;
+  font-size: 22px;
+}
+
+.login-form {
+  display: grid;
+  gap: 12px;
+  text-align: left;
+}
+
 /* APP LAYOUT */
 .app {
   min-height: 100vh;
@@ -72,6 +111,8 @@ body {
   padding: 22px 16px;
   border-right: 1px solid var(--side-border);
   background: linear-gradient(180deg, var(--side-bg), transparent);
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar-toggle {
@@ -155,6 +196,16 @@ body {
   display: grid;
   gap: 8px;
   padding: 0 6px;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 12px 6px 0;
+}
+
+.signout-btn {
+  width: 100%;
+  justify-content: center;
 }
 
 .nav-link {

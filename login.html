@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Etta Login</title>
+    <meta name="theme-color" content="#0b0f1a" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="Images/etta-logo-bg.png" />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="login-page">
+    <main class="login-wrap">
+      <section class="card login-card">
+        <img
+          class="login-logo"
+          src="Images/etta-logo-bg.png"
+          alt="Etta logo"
+        />
+        <h1 class="login-title">Sign in to Etta</h1>
+        <form id="loginForm" class="login-form">
+          <label class="field">
+            <span>Email</span>
+            <input
+              id="loginEmail"
+              type="email"
+              autocomplete="email"
+              placeholder="you@example.com"
+              required
+            />
+          </label>
+          <label class="field">
+            <span>Password</span>
+            <input
+              id="loginPassword"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Your password"
+              required
+            />
+          </label>
+          <button class="btn" type="submit">Sign in</button>
+          <div id="loginStatus" class="muted small"></div>
+        </form>
+      </section>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="firebase.js"></script>
+    <script>
+      const form = document.getElementById("loginForm");
+      const emailEl = document.getElementById("loginEmail");
+      const passwordEl = document.getElementById("loginPassword");
+      const statusEl = document.getElementById("loginStatus");
+
+      function setStatus(message, isError) {
+        if (!statusEl) return;
+        statusEl.textContent = message;
+        statusEl.style.color = isError ? "tomato" : "";
+      }
+
+      const app = window.initFirebase ? window.initFirebase() : null;
+      const auth = window.firebase?.auth ? window.firebase.auth() : null;
+
+      if (!auth) {
+        setStatus("Firebase not ready.", true);
+      } else {
+        auth.onAuthStateChanged((user) => {
+          if (user) {
+            window.location.href = "index.html";
+          }
+        });
+      }
+
+      if (form) {
+        form.addEventListener("submit", async (event) => {
+          event.preventDefault();
+          if (!auth) {
+            setStatus("Firebase not ready.", true);
+            return;
+          }
+          const email = emailEl?.value.trim();
+          const password = passwordEl?.value;
+          if (!email || !password) {
+            setStatus("Email and password required.", true);
+            return;
+          }
+          try {
+            await auth.signInWithEmailAndPassword(email, password);
+            setStatus("Signed in.", false);
+            window.location.href = "index.html";
+          } catch (err) {
+            setStatus(err?.message || "Sign in failed.", true);
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

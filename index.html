@@ -10,58 +10,7 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div class="app">
-      <!-- SIDEBAR -->
-      <aside class="sidebar">
-        <div class="profile">
-          <!-- Sidebar Logo -->
-
-          <div class="avatar-wrap">
-            <!-- Replace src with your image -->
-            <img
-              class="avatar"
-              src="Images/profile.jpg"
-              alt="Profile picture"
-            />
-          </div>
-
-          <!-- Sidebar Logo -->
-          <div class="welcome">
-            <div class="welcome-title">Welcome Markie!</div>
-          </div>
-        </div>
-
-        <button
-          class="sidebar-toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="sidebarNav"
-        >
-          <span>Menu</span>
-          <span class="toggle-ico" aria-hidden="true"></span>
-        </button>
-
-        <div class="nav-title">Navigation</div>
-
-        <nav class="nav" id="sidebarNav">
-          <a class="nav-link active" href="#">
-            <span class="nav-ico">🏠</span>
-            <span>Dashboard</span>
-          </a>
-
-          <a class="nav-link" href="calendar.html">
-            <span class="nav-ico">🗓️</span>
-            <span>Calendar</span>
-          </a>
-
-          <a class="nav-link" href="notebook.html">
-            <span class="nav-ico">🧩</span>
-            <span>Notebook</span>
-          </a>
-        </nav>
-      </aside>
-
-      <!-- MAIN -->
+    <div class="app">      <aside class="sidebar" id="sidebarMount"></aside><!-- MAIN -->
       <div class="main">
         <header class="topbar">
           <div class="brand">Dashboard</div>
@@ -156,7 +105,20 @@
       </div>
     </div>
 
-    <script src="app.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="firebase.js"></script>
+    <script src="layout/layout-sidebar.js"></script>
+    <script>
+      window.renderSidebar("dashboard");
+    </script>
+    <script src="js/app.js"></script>
     <script src="pwa.js"></script>
   </body>
 </html>
+
+
+
+
+

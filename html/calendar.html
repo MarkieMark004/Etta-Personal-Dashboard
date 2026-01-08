@@ -5,59 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Calendar</title>
     <meta name="theme-color" content="#0b0f1a" />
-    <link rel="manifest" href="manifest.json" />
-    <link rel="apple-touch-icon" href="Images/etta-logo-bg.png" />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="manifest" href="../manifest.json" />
+    <link rel="apple-touch-icon" href="../Images/etta-logo-bg.png" />
+    <link rel="stylesheet" href="../style.css" />
   </head>
   <body class="calendar-page">
-    <div class="app">
-      <!-- SIDEBAR -->
-      <aside class="sidebar">
-        <div class="profile">
-          <div class="avatar-wrap">
-            <img
-              class="avatar"
-              src="Images/profile.jpg"
-              alt="Profile picture"
-            />
-          </div>
-
-          <div class="welcome">
-            <div class="welcome-title">Welcome Markie!</div>
-          </div>
-        </div>
-
-        <button
-          class="sidebar-toggle"
-          type="button"
-          aria-expanded="false"
-          aria-controls="sidebarNav"
-        >
-          <span>Menu</span>
-          <span class="toggle-ico" aria-hidden="true"></span>
-        </button>
-
-        <div class="nav-title">Navigation</div>
-
-        <nav class="nav" id="sidebarNav">
-          <a class="nav-link" href="index.html">
-            <span class="nav-ico">🏠</span>
-            <span>Dashboard</span>
-          </a>
-
-          <a class="nav-link active" href="calendar.html">
-            <span class="nav-ico">🗓️</span>
-            <span>Calendar</span>
-          </a>
-
-          <a class="nav-link" href="notebook.html">
-            <span class="nav-ico">🧩</span>
-            <span>Notebook</span>
-          </a>
-        </nav>
-      </aside>
-
-      <!-- MAIN -->
+    <div class="app">      <aside class="sidebar" id="sidebarMount"></aside><!-- MAIN -->
       <div class="main">
         <header class="topbar">
           <div class="brand">Calendar</div>
@@ -209,7 +162,20 @@
       </div>
     </div>
 
-    <script src="calendar.js"></script>
-    <script src="pwa.js"></script>
+    <script src="../layout/layout-sidebar.js"></script>
+    <script>
+      window.renderSidebar("calendar");
+    </script>
+        <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="../firebase.js"></script>
+    <script src="../js/calendar.js"></script>
+    <script src="../pwa.js"></script>
   </body>
 </html>
+
+
+
+
+

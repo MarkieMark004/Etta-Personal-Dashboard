@@ -111,6 +111,12 @@ function getId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+let auth = null;
+let db = null;
+let currentUser = null;
+let unsubscribeEvents = null;
+let events = storage.get("calendarEvents_v1", []);
+
 // ---------- Mobile sidebar ----------
 function setupSidebarToggle() {
   const sidebar = document.querySelector(".sidebar");
@@ -182,15 +188,47 @@ function endOfMonth(d) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0);
 }
 
+function initCalendarAuth() {
+  if (!window.initFirebase) return;
+  const app = window.initFirebase();
+  if (!app || !window.firebase || !window.firebase.auth) return;
+
+  auth = window.firebase.auth();
+  db = window.firebase.firestore ? window.firebase.firestore() : null;
+
+  if (unsubscribeEvents) {
+    unsubscribeEvents();
+    unsubscribeEvents = null;
+  }
+
+  auth.onAuthStateChanged((user) => {
+    currentUser = user || null;
+    if (user && db) {
+      unsubscribeEvents = db
+        .collection("users")
+        .doc(user.uid)
+        .collection("events")
+        .orderBy("createdAt", "desc")
+        .onSnapshot((snap) => {
+          events = snap.docs.map((doc) => doc.data());
+          render();
+        });
+    } else {
+      window.location.href = "../login.html";
+    }
+  });
+}
+
+initCalendarAuth();
+
 function getEvents() {
-  return storage.get(EVENTS_KEY, []);
+  return events;
 }
 
-function setEvents(events) {
-  storage.set(EVENTS_KEY, events);
-}
-
-function yearFromISO(iso) {
+function setEvents(next) {
+  events = next;
+  storage.set("calendarEvents_v1", next);
+}function yearFromISO(iso) {
   return Number(iso.slice(0, 4));
 }
 
@@ -403,7 +441,7 @@ function renderSelectedDay() {
 
     const time =
       e.start || e.end
-        ? `${e.start || ""}${e.start && e.end ? "–" : ""}${e.end || ""}`
+        ? `${e.start || ""}${e.start && e.end ? " - " : ""}${e.end || ""}`
         : "No time";
 
     const range =
@@ -437,9 +475,17 @@ function renderSelectedDay() {
       del.textContent = "🗑️";
       del.title = "Delete event";
       del.addEventListener("click", () => {
-        const events = getEvents().filter((x) => x.id !== e.id);
-        setEvents(events);
-        render();
+        if (db && currentUser && e.id) {
+          db.collection("users")
+            .doc(currentUser.uid)
+            .collection("events")
+            .doc(e.id)
+            .delete();
+        } else {
+          const next = getEvents().filter((x) => x.id !== e.id);
+          setEvents(next);
+          render();
+        }
       });
 
       row.appendChild(del);
@@ -525,11 +571,20 @@ function saveEventFromModal() {
     end: eventEnd.value || "",
     notes: eventNotes.value.trim(),
     color: eventColor.value || "#00b5d9",
+    createdAt: Date.now(),
   };
 
-  const events = getEvents();
-  events.push(newEvent);
-  setEvents(events);
+  if (db && currentUser) {
+    db.collection("users")
+      .doc(currentUser.uid)
+      .collection("events")
+      .doc(newEvent.id)
+      .set(newEvent);
+  } else {
+    const next = getEvents();
+    next.push(newEvent);
+    setEvents(next);
+  }
 
   selectedDateISO = startDate;
   closeModal();
@@ -606,3 +661,6 @@ if (calendarCard) {
     { passive: false }
   );
 }
+
+
+

@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   const STORAGE_KEY = "notes";
+  const NOTES_COLLECTION = "notebookNotes";
 
   // --- DOM elements ---
   const newNoteBtn = document.querySelector(".new-note-btn");
@@ -38,6 +39,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentNoteId = null;
   let currentCreatedAt = "";
+  let auth = null;
+  let db = null;
+  let currentUser = null;
+  let unsubscribeNotes = null;
+  let notesCache = [];
 
   // ---------- Mobile sidebar ----------
   if (sidebar && sidebarToggle) {
@@ -113,6 +119,34 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
   }
 
+  function getId() {
+    if (crypto?.randomUUID) return crypto.randomUUID();
+    return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
+
+  function normalizeNotesList(notes) {
+    if (!Array.isArray(notes)) return [];
+    return notes.map((note) => {
+      if (typeof note.favorite !== "boolean") {
+        return { ...note, favorite: false };
+      }
+      return note;
+    });
+  }
+
+  function getNotesCollection() {
+    if (!db || !currentUser) return null;
+    return db
+      .collection("users")
+      .doc(currentUser.uid)
+      .collection(NOTES_COLLECTION);
+  }
+
+  function getNotesList() {
+    if (currentUser) return notesCache;
+    return normalizeNotesList(loadNotesFromStorage());
+  }
+
   function getSnippetFromContent(content) {
     if (!content) return "";
     const firstLine = content.split("\n")[0].trim();
@@ -183,6 +217,31 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function clearRenderedNotes() {
+    if (pagesList) {
+      const pageItems = pagesList.querySelectorAll(".page-item");
+      pageItems.forEach((item) => {
+        if (!item.hasAttribute("data-template")) {
+          item.remove();
+        }
+      });
+    }
+
+    if (notesGrid) {
+      const cards = notesGrid.querySelectorAll(".note-card");
+      cards.forEach((card) => {
+        if (!card.hasAttribute("data-template")) {
+          card.remove();
+        }
+      });
+    }
+  }
+
+  function renderAllNotes(notes) {
+    clearRenderedNotes();
+    normalizeNotesList(notes).forEach(renderNote);
+  }
+
   function updateRenderedNote(note) {
     const pageBtn = document.querySelector(`.page-item[data-id="${note.id}"]`);
     const card = document.querySelector(`.note-card[data-id="${note.id}"]`);
@@ -219,12 +278,61 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function deleteNoteById(noteId) {
+  async function createNote(note) {
+    if (db && currentUser) {
+      const collection = getNotesCollection();
+      if (collection) {
+        await collection.doc(note.id).set(note);
+      }
+      return note;
+    }
+
+    const notes = loadNotesFromStorage();
+    notes.push(note);
+    saveNotesToStorage(notes);
+    return note;
+  }
+
+  async function updateNote(noteId, updates) {
+    if (!noteId) return null;
+
+    if (db && currentUser) {
+      const collection = getNotesCollection();
+      if (collection) {
+        await collection.doc(noteId).set(updates, { merge: true });
+      }
+      return { id: noteId, ...updates };
+    }
+
+    const notes = loadNotesFromStorage();
+    const index = notes.findIndex((n) => n.id === noteId);
+    if (index === -1) return null;
+
+    notes[index] = { ...notes[index], ...updates };
+    saveNotesToStorage(notes);
+    return notes[index];
+  }
+
+  async function removeNote(noteId) {
     if (!noteId) return;
+
+    if (db && currentUser) {
+      const collection = getNotesCollection();
+      if (collection) {
+        await collection.doc(noteId).delete();
+      }
+      return;
+    }
 
     const notes = loadNotesFromStorage();
     const updated = notes.filter((n) => n.id !== noteId);
     saveNotesToStorage(updated);
+  }
+
+  function deleteNoteById(noteId) {
+    if (!noteId) return;
+
+    removeNote(noteId);
 
     const pageBtn = document.querySelector(`.page-item[data-id="${noteId}"]`);
     const card = document.querySelector(`.note-card[data-id="${noteId}"]`);
@@ -254,7 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Set Favorite / Remove Favorite label
     if (contextFavoriteBtn) {
-      const notes = loadNotesFromStorage();
+      const notes = getNotesList();
       const note = notes.find((n) => n.id === noteId);
       if (note && note.favorite) {
         contextFavoriteBtn.textContent = "Remove Favorite";
@@ -283,18 +391,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const now = new Date();
     currentCreatedAt = formatDateForDisplay(now);
 
-    const notes = loadNotesFromStorage();
-
     const newNote = {
-      id: Date.now().toString(),
+      id: getId(),
       title: "",
       content: "",
       createdAt: currentCreatedAt,
+      createdAtMs: now.getTime(),
       favorite: false,
     };
 
-    notes.push(newNote);
-    saveNotesToStorage(notes);
+    createNote(newNote);
 
     // Only create page-item for new note
     renderPageItem(newNote);
@@ -315,7 +421,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openNoteForEdit(noteId) {
-    const notes = loadNotesFromStorage();
+    const notes = getNotesList();
     const note = notes.find((n) => n.id === noteId);
     if (!note) return;
 
@@ -352,6 +458,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     noteModal.classList.remove("is-expanded");
     if (noteExpandBtn) noteExpandBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function initNotebookAuth() {
+    if (!window.initFirebase) {
+      renderAllNotes(getNotesList());
+      return;
+    }
+
+    const app = window.initFirebase();
+    if (!app || !window.firebase || !window.firebase.auth) {
+      renderAllNotes(getNotesList());
+      return;
+    }
+
+    auth = window.firebase.auth();
+    db = window.firebase.firestore ? window.firebase.firestore() : null;
+
+    if (unsubscribeNotes) {
+      unsubscribeNotes();
+      unsubscribeNotes = null;
+    }
+
+    auth.onAuthStateChanged((user) => {
+      currentUser = user || null;
+
+      if (user && db) {
+        const collection = getNotesCollection();
+        if (!collection) return;
+
+        unsubscribeNotes = collection
+          .orderBy("createdAtMs", "desc")
+          .onSnapshot((snap) => {
+            notesCache = normalizeNotesList(
+              snap.docs.map((doc) => doc.data())
+            );
+            renderAllNotes(notesCache);
+          });
+      } else {
+        window.location.href = "../login.html";
+      }
+    });
   }
 
   // ---------- Event wiring ----------
@@ -451,28 +598,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const noteId = contextMenu.dataset.noteId;
       if (!noteId) return;
 
-      const notes = loadNotesFromStorage();
+      const notes = getNotesList();
       const index = notes.findIndex((n) => n.id === noteId);
       if (index === -1) return;
 
       const note = notes[index];
+      const nextFavorite = !note.favorite;
 
-      // Toggle favorite (IMPORTANT: we only touch this field here)
-      note.favorite = !note.favorite;
+      updateNote(noteId, { favorite: nextFavorite });
 
-      saveNotesToStorage(notes);
+      const updatedNote = { ...note, favorite: nextFavorite };
 
       // Update page-item + any existing card title/snippet
-      updateRenderedNote(note);
+      updateRenderedNote(updatedNote);
 
       // Show/hide card based on favorite state
       const existingCard = document.querySelector(
-        `.note-card[data-id="${note.id}"]`
+        `.note-card[data-id="${updatedNote.id}"]`
       );
 
-      if (note.favorite) {
+      if (updatedNote.favorite) {
         if (!existingCard) {
-          renderNoteCard(note);
+          renderNoteCard(updatedNote);
         }
       } else {
         if (existingCard) {
@@ -526,7 +673,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const title = (noteTitleInput?.value || "").trim();
       const content = (noteTextarea?.value || "").trim();
 
-      const notes = loadNotesFromStorage();
+      const notes = getNotesList();
       const index = notes.findIndex((n) => n.id === currentNoteId);
       if (index === -1) {
         closeModal();
@@ -534,11 +681,10 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Only update title/content — keep id, createdAt, favorite
-      notes[index].title = title;
-      notes[index].content = content;
+      updateNote(currentNoteId, { title, content });
 
-      saveNotesToStorage(notes);
-      updateRenderedNote(notes[index]);
+      const updatedNote = { ...notes[index], title, content };
+      updateRenderedNote(updatedNote);
 
       closeModal();
     });
@@ -605,23 +751,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ---------- Initial load: normalize + render ----------
-
-  let existingNotes = loadNotesFromStorage();
-
-  // Normalize: ensure every note has a boolean favorite flag
-  let changed = false;
-  existingNotes = existingNotes.map((note) => {
-    if (typeof note.favorite !== "boolean") {
-      changed = true;
-      return { ...note, favorite: false };
-    }
-    return note;
-  });
-
-  if (changed) {
-    saveNotesToStorage(existingNotes);
-  }
-
-  existingNotes.forEach(renderNote);
+  // ---------- Initial load ----------
+  initNotebookAuth();
 });
