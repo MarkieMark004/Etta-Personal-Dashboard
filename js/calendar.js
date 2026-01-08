@@ -204,6 +204,7 @@ function initCalendarAuth() {
   auth.onAuthStateChanged((user) => {
     currentUser = user || null;
     if (user && db) {
+      document.body.classList.remove("auth-pending");
       unsubscribeEvents = db
         .collection("users")
         .doc(user.uid)

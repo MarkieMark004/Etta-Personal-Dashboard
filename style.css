@@ -60,6 +60,42 @@ body {
   color: var(--text);
 }
 
+/* Auth loading gate */
+.auth-loading {
+  display: none;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.auth-loading-card {
+  background: linear-gradient(180deg, var(--card2), var(--card));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px 22px;
+  text-align: center;
+}
+
+.auth-loading-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.auth-loading-sub {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+body.auth-pending .auth-loading {
+  display: flex;
+}
+
+body.auth-pending .app {
+  display: none;
+}
+
 /* LOGIN */
 .login-page {
   min-height: 100vh;

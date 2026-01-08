@@ -14,7 +14,13 @@
     />
   </head>
 
-  <body>
+  <body class="auth-pending">
+    <div class="auth-loading" aria-live="polite">
+      <div class="auth-loading-card">
+        <div class="auth-loading-title">Checking session...</div>
+        <div class="auth-loading-sub">Please wait</div>
+      </div>
+    </div>
     <div class="app">      <aside class="sidebar" id="sidebarMount"></aside><div class="note-context-menu is-hidden">
         <button type="button" class="context-edit">Edit</button>
         <button type="button" class="context-favorite">⭐ Favorite</button>

@@ -484,6 +484,7 @@ document.addEventListener("DOMContentLoaded", () => {
       currentUser = user || null;
 
       if (user && db) {
+        document.body.classList.remove("auth-pending");
         const collection = getNotesCollection();
         if (!collection) return;
 

@@ -106,6 +106,7 @@ function initAuthListener() {
   auth.onAuthStateChanged((user) => {
     currentUser = user || null;
     if (user) {
+      document.body.classList.remove("auth-pending");
       console.log("Signed in:", user.email || user.uid);
       if (db) {
         unsubscribeTodos = db
