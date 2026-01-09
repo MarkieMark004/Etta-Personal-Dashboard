@@ -244,6 +244,20 @@ body.auth-pending .app {
   justify-content: center;
 }
 
+.nav-signout {
+  background: transparent;
+  border: 1px solid transparent;
+  text-align: left;
+  width: 100%;
+  font: inherit;
+  display: none;
+}
+
+.nav-signout:hover {
+  background: var(--side-hover);
+  border-color: var(--side-border);
+}
+
 .nav-link {
   display: flex;
   align-items: center;
@@ -567,6 +581,18 @@ body.light .chart-placeholder {
   .grid {
     padding-top: 6px;
   }
+  .sidebar-footer {
+    display: none;
+  }
+  .nav-signout {
+    display: flex;
+  }
+}
+
+@media (min-width: 981px) {
+  .nav-signout {
+    display: none;
+  }
 }
 
 @media (max-width: 900px) {
@@ -636,7 +662,7 @@ body.light .chart-placeholder {
   padding: 6px;
   min-height: 110px;
   background: rgba(0, 0, 0, 0.12);
-  cursor: pointer;
+  cursor: default;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -659,14 +685,30 @@ body.light .day {
   outline: 2px solid rgba(0, 181, 217, 0.65);
 }
 
+.day.today {
+  outline: 1px solid rgba(255, 255, 255, 0.35);
+  outline-offset: -1px;
+}
+
+.day.today:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body.light .day.today {
+  outline-color: rgba(0, 0, 0, 0.25);
+}
+
+.day.selected.today {
+  outline: 2px solid rgba(0, 181, 217, 0.65);
+  background: rgba(0, 181, 217, 0.18);
+}
+
 .day.in-range {
   background: rgba(0, 181, 217, 0.18);
   border-color: rgba(0, 181, 217, 0.65);
 }
 
-.day .day-num,
-.day .pills,
-.day .pill {
+.day .day-num {
   pointer-events: none;
 }
 
@@ -691,6 +733,12 @@ body.light .day.in-range {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   line-height: 1.2;
+}
+
+.pill:hover {
+  border-color: rgba(0, 181, 217, 0.7);
+  background: rgba(0, 181, 217, 0.2);
+  cursor: pointer;
 }
 
 body.light .pill {
@@ -837,6 +885,27 @@ body.light .event-row {
 
 #eventColor:focus-visible {
   box-shadow: 0 0 0 3px rgba(0, 181, 217, 0.35);
+}
+
+.color-swatches {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: -4px;
+}
+
+.color-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-swatch.is-selected {
+  box-shadow: 0 0 0 2px rgba(0, 181, 217, 0.45);
 }
 
 /* Make the Color field not full-width */
@@ -1053,11 +1122,39 @@ body.light .event-row {
   width: 90%;
   min-height: 420px;
 
-  background: #0b0f1a;
+  background: var(--card);
   border-radius: 20px;
-
   padding: 32px 40px;
   z-index: 1;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 981px) {
+  .note-modal {
+    align-items: stretch;
+    justify-content: flex-end;
+  }
+
+  .note-modal::before {
+    display: none;
+  }
+
+  .note-modal-dialog {
+    width: 50vw;
+    max-width: none;
+    height: 100%;
+    border-radius: 0;
+    transform: translateX(100%);
+    transition: transform 220ms ease;
+  }
+
+  .note-modal:not(.is-hidden) .note-modal-dialog {
+    transform: translateX(0);
+  }
 }
 
 .note-modal.is-expanded {
@@ -1094,14 +1191,21 @@ body.light .event-row {
 
 /* Default = dark mode */
 .note-modal-dialog {
-  background: #0b0f1a;
+  background: var(--card);
   color: #ffffff;
 }
 
 /* Light mode override */
 body.light .note-modal-dialog {
-  background: #ffffff;
+  background: var(--card);
   color: #111111;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 20px 50px rgba(10, 20, 60, 0.18);
+}
+
+body.light .note-modal-title,
+body.light .note-modal-textarea {
+  background: #f5f7fb;
 }
 
 /* Layout inside modal */
@@ -1122,6 +1226,7 @@ body.light .note-modal-dialog {
   padding: 20px 20px;
   border-radius: 6px;
   border: none;
+  background: #0b0f1a;
   outline: none;
 }
 
@@ -1133,27 +1238,55 @@ body.light .note-modal-dialog {
   margin-bottom: 16px;
 }
 
+.note-modal-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .note-modal-editor {
   flex: 1;
+  min-height: 0;
 }
 
 .note-modal-textarea {
   width: 100%;
-  min-height: 450px;
-  resize: vertical;
+  height: 100%;
+  min-height: 0;
+  resize: none;
   border-radius: 8px;
   border: none;
+  background: #0b0f1a;
   outline: none;
   padding: 12px;
+}
+
+.note-view-mode .note-modal-title,
+.note-view-mode .note-modal-textarea {
+  color: var(--muted);
+  opacity: 0.9;
+}
+
+.note-view-mode .note-modal-textarea {
+  cursor: default;
 }
 
 .note-modal-footer {
   margin-top: 16px;
   display: flex;
   justify-content: flex-end;
+  gap: 10px;
 }
 
 .note-modal-save {
+  padding: 6px 18px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+}
+
+.note-modal-toggle {
   padding: 6px 18px;
   border-radius: 999px;
   border: none;

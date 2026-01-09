@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveBtn = document.querySelector(".note-modal-save");
   const noteExpandBtn = document.querySelector(".note-modal-expand-btn");
   const noteModalDialog = document.querySelector(".note-modal-dialog");
+  const toggleBtn = document.querySelector(".note-modal-toggle");
 
   const pagesList = document.querySelector(".pages-list");
   const notesGrid = document.querySelector(".notes-grid");
@@ -39,6 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let currentNoteId = null;
   let currentCreatedAt = "";
+  let isEditMode = false;
   let auth = null;
   let db = null;
   let currentUser = null;
@@ -414,6 +416,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (noteTitleInput) noteTitleInput.value = newNote.title;
     if (noteTextarea) noteTextarea.value = newNote.content;
 
+    if (window.matchMedia("(max-width: 980px)").matches && noteModal) {
+      noteModal.classList.add("is-expanded");
+      if (noteExpandBtn) noteExpandBtn.setAttribute("aria-expanded", "true");
+    }
+    setEditMode(true);
+
     if (noteModal) {
       noteModal.classList.remove("is-hidden");
     }
@@ -440,12 +448,18 @@ document.addEventListener("DOMContentLoaded", () => {
       noteTextarea.value = note.content || "";
     }
 
+    if (window.matchMedia("(max-width: 980px)").matches && noteModal) {
+      noteModal.classList.add("is-expanded");
+      if (noteExpandBtn) noteExpandBtn.setAttribute("aria-expanded", "true");
+    }
+    setEditMode(false);
+
     if (noteModal) {
       noteModal.classList.remove("is-hidden");
     }
 
     if (noteTitleInput) {
-      noteTitleInput.focus();
+      noteTitleInput.blur();
     }
 
     hideContextMenu();
@@ -457,7 +471,20 @@ document.addEventListener("DOMContentLoaded", () => {
       noteModal.classList.add("is-hidden");
     }
     noteModal.classList.remove("is-expanded");
+    setEditMode(false);
     if (noteExpandBtn) noteExpandBtn.setAttribute("aria-expanded", "false");
+  }
+
+  function setEditMode(enabled) {
+    isEditMode = enabled;
+    if (noteTitleInput) noteTitleInput.readOnly = !enabled;
+    if (noteTextarea) noteTextarea.readOnly = !enabled;
+    if (toggleBtn) {
+      toggleBtn.textContent = enabled ? "View" : "Edit";
+    }
+    if (noteModal) {
+      noteModal.classList.toggle("note-view-mode", !enabled);
+    }
   }
 
   function initNotebookAuth() {
@@ -484,6 +511,7 @@ document.addEventListener("DOMContentLoaded", () => {
       currentUser = user || null;
 
       if (user && db) {
+        sessionStorage.setItem("etta-auth", "1");
         document.body.classList.remove("auth-pending");
         const collection = getNotesCollection();
         if (!collection) return;
@@ -497,6 +525,7 @@ document.addEventListener("DOMContentLoaded", () => {
             renderAllNotes(notesCache);
           });
       } else {
+        sessionStorage.removeItem("etta-auth");
         window.location.href = "../login.html";
       }
     });
@@ -671,6 +700,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
+      if (!isEditMode) {
+        setEditMode(true);
+        if (noteTitleInput) noteTitleInput.focus();
+        return;
+      }
+
       const title = (noteTitleInput?.value || "").trim();
       const content = (noteTextarea?.value || "").trim();
 
@@ -691,11 +726,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (toggleBtn) {
+    toggleBtn.addEventListener("click", () => {
+      const next = !isEditMode;
+      setEditMode(next);
+      if (next && noteTitleInput) noteTitleInput.focus();
+    });
+  }
+
   // Expand modal to full screen
-  if (noteExpandBtn && noteModal && noteModalDialog) {
+  if (noteExpandBtn) {
     noteExpandBtn.addEventListener("click", () => {
-      const isExpanded = noteModal.classList.toggle("is-expanded");
-      noteExpandBtn.setAttribute("aria-expanded", isExpanded ? "true" : "false");
+      closeModal();
     });
   }
 

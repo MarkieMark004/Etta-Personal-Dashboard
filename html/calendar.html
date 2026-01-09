@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="../style.css" />
   </head>
   <body class="calendar-page auth-pending">
+    <script>
+      if (sessionStorage.getItem("etta-auth") === "1") {
+        document.body.classList.remove("auth-pending");
+      }
+    </script>
     <div class="auth-loading" aria-live="polite">
       <div class="auth-loading-card">
         <div class="auth-loading-title">Checking session...</div>
@@ -148,6 +153,13 @@
             <span>Color</span>
             <input id="eventColor" type="color" value="#00b5d9" />
           </label>
+          <div class="color-swatches" aria-label="Default colors">
+            <button type="button" class="color-swatch" data-color="#00b5d9"></button>
+            <button type="button" class="color-swatch" data-color="#f25c54"></button>
+            <button type="button" class="color-swatch" data-color="#f0b429"></button>
+            <button type="button" class="color-swatch" data-color="#3ecf8e"></button>
+            <button type="button" class="color-swatch" data-color="#7c4dff"></button>
+          </div>
 
           <label class="field">
             <span>Notes (optional)</span>
@@ -161,6 +173,9 @@
           <div class="row" style="justify-content: flex-end">
             <button class="btn subtle" id="cancelBtn" type="button">
               Cancel
+            </button>
+            <button class="btn subtle" id="deleteBtn" type="button">
+              Delete
             </button>
             <button class="btn" id="saveBtn" type="button">Save</button>
           </div>

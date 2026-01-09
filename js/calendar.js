@@ -84,6 +84,7 @@ const HOLIDAYS_BY_YEAR = {
 
 let clickTimer = null;
 const CLICK_DELAY = 220; // ms
+const MOBILE_DOUBLE_TAP_DELAY = 280;
 
 // Calendar with localStorage events + theme toggle sync
 let isDragging = false;
@@ -145,6 +146,7 @@ const EVENTS_KEY = "calendarEvents_v1";
 
 let viewDate = new Date();
 let selectedDateISO = null;
+let editingEventId = null;
 
 const monthLabel = $("#monthLabel");
 const calGrid = $("#calGrid");
@@ -163,6 +165,7 @@ const backdrop = $("#modalBackdrop");
 const closeModalBtn = $("#closeModalBtn");
 const cancelBtn = $("#cancelBtn");
 const saveBtn = $("#saveBtn");
+const deleteBtn = $("#deleteBtn");
 
 const eventStartDate = $("#eventStartDate");
 const eventEndDate = $("#eventEndDate");
@@ -172,6 +175,7 @@ const eventEnd = $("#eventEnd");
 const eventNotes = $("#eventNotes");
 const calendarCard = $("#calendarCard");
 const eventColor = $("#eventColor");
+const colorSwatches = document.querySelectorAll(".color-swatch");
 
 function toISODate(d) {
   const yyyy = d.getFullYear();
@@ -204,6 +208,7 @@ function initCalendarAuth() {
   auth.onAuthStateChanged((user) => {
     currentUser = user || null;
     if (user && db) {
+      sessionStorage.setItem("etta-auth", "1");
       document.body.classList.remove("auth-pending");
       unsubscribeEvents = db
         .collection("users")
@@ -215,6 +220,7 @@ function initCalendarAuth() {
           render();
         });
     } else {
+      sessionStorage.removeItem("etta-auth");
       window.location.href = "../login.html";
     }
   });
@@ -264,6 +270,7 @@ function formatMonthLabel(d) {
 }
 
 function openModalWithRange(startISO, endISO) {
+  editingEventId = null;
   eventStartDate.value = startISO;
   eventEndDate.value = endISO;
 
@@ -272,13 +279,47 @@ function openModalWithRange(startISO, endISO) {
   eventEnd.value = "";
   eventColor.value = "#00b5d9";
   eventNotes.value = "";
+  syncSwatchSelection(eventColor.value);
 
   backdrop.classList.add("show");
   modal.classList.add("show");
   backdrop.setAttribute("aria-hidden", "false");
   modal.setAttribute("aria-hidden", "false");
+  if (deleteBtn) deleteBtn.style.display = "none";
 
   setTimeout(() => eventTitle.focus(), 0);
+}
+
+function openModalForEdit(eventData) {
+  if (!eventData) return;
+
+  editingEventId = eventData.id || null;
+  eventStartDate.value = eventData.startDate || "";
+  eventEndDate.value = eventData.endDate || eventData.startDate || "";
+  eventTitle.value = eventData.title || "";
+  eventStart.value = eventData.start || "";
+  eventEnd.value = eventData.end || "";
+  eventColor.value = eventData.color || "#00b5d9";
+  eventNotes.value = eventData.notes || "";
+  syncSwatchSelection(eventColor.value);
+
+  backdrop.classList.add("show");
+  modal.classList.add("show");
+  backdrop.setAttribute("aria-hidden", "false");
+  modal.setAttribute("aria-hidden", "false");
+  if (deleteBtn) deleteBtn.style.display = "inline-flex";
+
+  setTimeout(() => eventTitle.focus(), 0);
+}
+
+function syncSwatchSelection(color) {
+  colorSwatches.forEach((swatch) => {
+    const isMatch = swatch.dataset.color === color;
+    swatch.classList.toggle("is-selected", isMatch);
+    if (!swatch.style.backgroundColor) {
+      swatch.style.backgroundColor = swatch.dataset.color;
+    }
+  });
 }
 
 function closeModal() {
@@ -286,6 +327,7 @@ function closeModal() {
   modal.classList.remove("show");
   backdrop.setAttribute("aria-hidden", "true");
   modal.setAttribute("aria-hidden", "true");
+  if (deleteBtn) deleteBtn.style.display = "none";
 
   clearRangeHighlight();
 }
@@ -311,11 +353,12 @@ function render() {
     const iso = toISODate(cellDate);
     const isOutside = cellDate.getMonth() !== viewDate.getMonth();
     const isSelected = iso === selectedDateISO;
+    const isToday = iso === toISODate(new Date());
 
     const cell = document.createElement("div");
     cell.className = `day ${isOutside ? "outside" : ""} ${
       isSelected ? "selected" : ""
-    }`;
+    } ${isToday ? "today" : ""}`;
     cell.dataset.date = iso;
 
     const num = document.createElement("div");
@@ -339,6 +382,21 @@ function render() {
         pill.style.borderColor = e.color;
         pill.style.backgroundColor = e.color;
         pill.style.color = "#fff";
+      }
+
+      if (!e.isHoliday && e.id) {
+        pill.dataset.eventId = e.id;
+        pill.addEventListener("dblclick", (event) => {
+          event.stopPropagation();
+          openModalForEdit(e);
+        });
+
+        if (window.matchMedia("(max-width: 980px)").matches) {
+          pill.addEventListener("click", (event) => {
+            event.stopPropagation();
+            openModalForEdit(e);
+          });
+        }
       }
 
       pill.title = pill.textContent;
@@ -386,6 +444,16 @@ function render() {
     cell.addEventListener("click", () => {
       if (isDragging) return;
 
+      const isMobile = window.matchMedia("(max-width: 980px)").matches;
+      if (isMobile) {
+        clearTimeout(clickTimer);
+        clickTimer = setTimeout(() => {
+          selectedDateISO = iso;
+          render();
+        }, MOBILE_DOUBLE_TAP_DELAY + 20);
+        return;
+      }
+
       selectedDateISO = iso;
       render();
 
@@ -399,6 +467,22 @@ function render() {
       render();
       openModalWithRange(iso, iso);
     });
+
+    if (window.matchMedia("(max-width: 980px)").matches) {
+      let lastTap = 0;
+      cell.addEventListener("touchend", () => {
+        const now = Date.now();
+        if (now - lastTap <= MOBILE_DOUBLE_TAP_DELAY) {
+          clearTimeout(clickTimer);
+          selectedDateISO = iso;
+          render();
+          openModalWithRange(iso, iso);
+          lastTap = 0;
+          return;
+        }
+        lastTap = now;
+      });
+    }
 
     calGrid.appendChild(cell);
   }
@@ -563,8 +647,14 @@ function saveEventFromModal() {
     return;
   }
 
+  const existing = editingEventId
+    ? getEvents().find((ev) => ev.id === editingEventId)
+    : null;
+  const eventId = editingEventId || getId();
+  const createdAt = existing?.createdAt || Date.now();
+
   const newEvent = {
-    id: getId(),
+    id: eventId,
     startDate,
     endDate,
     title,
@@ -572,7 +662,7 @@ function saveEventFromModal() {
     end: eventEnd.value || "",
     notes: eventNotes.value.trim(),
     color: eventColor.value || "#00b5d9",
-    createdAt: Date.now(),
+    createdAt,
   };
 
   if (db && currentUser) {
@@ -580,10 +670,15 @@ function saveEventFromModal() {
       .doc(currentUser.uid)
       .collection("events")
       .doc(newEvent.id)
-      .set(newEvent);
+      .set(newEvent, { merge: true });
   } else {
     const next = getEvents();
-    next.push(newEvent);
+    const index = next.findIndex((ev) => ev.id === eventId);
+    if (index === -1) {
+      next.push(newEvent);
+    } else {
+      next[index] = { ...next[index], ...newEvent };
+    }
     setEvents(next);
   }
 
@@ -593,6 +688,44 @@ function saveEventFromModal() {
 }
 
 saveBtn.addEventListener("click", saveEventFromModal);
+
+colorSwatches.forEach((swatch) => {
+  swatch.addEventListener("click", () => {
+    const color = swatch.dataset.color;
+    if (!color) return;
+    eventColor.value = color;
+    syncSwatchSelection(color);
+  });
+});
+
+if (eventColor) {
+  eventColor.addEventListener("input", () => {
+    syncSwatchSelection(eventColor.value);
+  });
+}
+
+if (deleteBtn) {
+  deleteBtn.addEventListener("click", () => {
+    if (!editingEventId) {
+      closeModal();
+      return;
+    }
+
+    if (db && currentUser) {
+      db.collection("users")
+        .doc(currentUser.uid)
+        .collection("events")
+        .doc(editingEventId)
+        .delete();
+    } else {
+      const next = getEvents().filter((ev) => ev.id !== editingEventId);
+      setEvents(next);
+    }
+
+    closeModal();
+    render();
+  });
+}
 
 document.addEventListener("keydown", (e) => {
   // Only when modal is open

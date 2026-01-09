@@ -68,6 +68,7 @@
       } else {
         auth.onAuthStateChanged((user) => {
           if (user) {
+            sessionStorage.setItem("etta-auth", "1");
             window.location.href = "index.html";
           }
         });
@@ -89,6 +90,7 @@
           try {
             await auth.signInWithEmailAndPassword(email, password);
             setStatus("Signed in.", false);
+            sessionStorage.setItem("etta-auth", "1");
             window.location.href = "index.html";
           } catch (err) {
             setStatus(err?.message || "Sign in failed.", true);

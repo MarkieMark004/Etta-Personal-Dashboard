@@ -106,6 +106,7 @@ function initAuthListener() {
   auth.onAuthStateChanged((user) => {
     currentUser = user || null;
     if (user) {
+      sessionStorage.setItem("etta-auth", "1");
       document.body.classList.remove("auth-pending");
       console.log("Signed in:", user.email || user.uid);
       if (db) {
@@ -133,6 +134,7 @@ function initAuthListener() {
       }
     } else {
       console.log("Signed out");
+      sessionStorage.removeItem("etta-auth");
       window.location.href = "login.html";
     }
   });

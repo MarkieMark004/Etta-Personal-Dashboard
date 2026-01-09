@@ -67,6 +67,11 @@ function renderSidebar(activePage) {
         </span>
         <span>Notebook</span>
       </a>
+
+      <button class="nav-link nav-signout" type="button">
+        <span class="nav-ico" aria-hidden="true">⎋</span>
+        <span>Sign out</span>
+      </button>
     </nav>
 
     <div class="sidebar-footer">
@@ -81,19 +86,27 @@ function renderSidebar(activePage) {
     link.classList.toggle("active", link.dataset.page === activePage);
   });
 
+  const signOutHandler = async () => {
+    try {
+      if (window.initFirebase && window.firebase?.auth) {
+        window.initFirebase();
+        await window.firebase.auth().signOut();
+      }
+      sessionStorage.removeItem("etta-auth");
+    } finally {
+      const loginHref = isCalendar || isNotebook ? "../login.html" : "login.html";
+      window.location.href = loginHref;
+    }
+  };
+
   const signOutBtn = mount.querySelector("#sidebarSignOut");
   if (signOutBtn) {
-    signOutBtn.addEventListener("click", async () => {
-      try {
-        if (window.initFirebase && window.firebase?.auth) {
-          window.initFirebase();
-          await window.firebase.auth().signOut();
-        }
-      } finally {
-        const loginHref = isCalendar || isNotebook ? "../login.html" : "login.html";
-        window.location.href = loginHref;
-      }
-    });
+    signOutBtn.addEventListener("click", signOutHandler);
+  }
+
+  const signOutNav = mount.querySelector(".nav-signout");
+  if (signOutNav) {
+    signOutNav.addEventListener("click", signOutHandler);
   }
 }
 

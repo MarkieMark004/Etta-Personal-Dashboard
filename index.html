@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body class="auth-pending">
+    <script>
+      if (sessionStorage.getItem("etta-auth") === "1") {
+        document.body.classList.remove("auth-pending");
+      }
+    </script>
     <div class="auth-loading" aria-live="polite">
       <div class="auth-loading-card">
         <div class="auth-loading-title">Checking session...</div>
