@@ -176,6 +176,7 @@ const eventNotes = $("#eventNotes");
 const calendarCard = $("#calendarCard");
 const eventColor = $("#eventColor");
 const colorSwatches = document.querySelectorAll(".color-swatch");
+let modalBackHandlerBound = false;
 
 function toISODate(d) {
   const yyyy = d.getFullYear();
@@ -288,6 +289,7 @@ function openModalWithRange(startISO, endISO) {
   if (deleteBtn) deleteBtn.style.display = "none";
 
   setTimeout(() => eventTitle.focus(), 0);
+  setupModalBackClose();
 }
 
 function openModalForEdit(eventData) {
@@ -310,6 +312,7 @@ function openModalForEdit(eventData) {
   if (deleteBtn) deleteBtn.style.display = "inline-flex";
 
   setTimeout(() => eventTitle.focus(), 0);
+  setupModalBackClose();
 }
 
 function syncSwatchSelection(color) {
@@ -330,6 +333,33 @@ function closeModal() {
   if (deleteBtn) deleteBtn.style.display = "none";
 
   clearRangeHighlight();
+  teardownModalBackClose();
+}
+
+function setupModalBackClose() {
+  if (!window.matchMedia("(max-width: 980px)").matches) return;
+  if (modalBackHandlerBound) return;
+
+  modalBackHandlerBound = true;
+  history.pushState({ calendarModal: true }, "");
+
+  const onPopState = () => {
+    if (modal.classList.contains("show")) {
+      closeModal();
+    }
+  };
+
+  window.addEventListener("popstate", onPopState, { once: true });
+}
+
+function teardownModalBackClose() {
+  if (!window.matchMedia("(max-width: 980px)").matches) return;
+  if (!modalBackHandlerBound) return;
+  modalBackHandlerBound = false;
+
+  if (history.state && history.state.calendarModal) {
+    history.back();
+  }
 }
 
 function render() {
