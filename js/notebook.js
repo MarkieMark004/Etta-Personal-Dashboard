@@ -66,6 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const actionsMedia = window.matchMedia("(max-width: 980px)");
+  const isMobile = window.matchMedia("(max-width: 980px)").matches;
+
+  if (isMobile && document.activeElement) {
+    document.activeElement.blur();
+  }
 
   function syncNotebookActions(event) {
     if (!sidebarMobileActions || !topbarRight) return;
@@ -425,7 +430,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (noteModal) {
       noteModal.classList.remove("is-hidden");
     }
-    if (noteTitleInput) noteTitleInput.focus();
+    if (!window.matchMedia("(max-width: 980px)").matches && noteTitleInput) {
+      noteTitleInput.focus();
+    }
   }
 
   function openNoteForEdit(noteId) {
@@ -702,7 +709,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!isEditMode) {
         setEditMode(true);
-        if (noteTitleInput) noteTitleInput.focus();
+      if (!window.matchMedia("(max-width: 980px)").matches && noteTitleInput) {
+        noteTitleInput.focus();
+      }
         return;
       }
 
@@ -730,7 +739,13 @@ document.addEventListener("DOMContentLoaded", () => {
     toggleBtn.addEventListener("click", () => {
       const next = !isEditMode;
       setEditMode(next);
-      if (next && noteTitleInput) noteTitleInput.focus();
+      if (
+        next &&
+        noteTitleInput &&
+        !window.matchMedia("(max-width: 980px)").matches
+      ) {
+        noteTitleInput.focus();
+      }
     });
   }
 

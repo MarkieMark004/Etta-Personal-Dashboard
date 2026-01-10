@@ -177,6 +177,11 @@ const calendarCard = $("#calendarCard");
 const eventColor = $("#eventColor");
 const colorSwatches = document.querySelectorAll(".color-swatch");
 let modalBackHandlerBound = false;
+const isMobile = window.matchMedia("(max-width: 980px)").matches;
+
+if (isMobile && document.activeElement) {
+  document.activeElement.blur();
+}
 
 function toISODate(d) {
   const yyyy = d.getFullYear();
@@ -217,7 +222,10 @@ function initCalendarAuth() {
         .collection("events")
         .orderBy("createdAt", "desc")
         .onSnapshot((snap) => {
-          events = snap.docs.map((doc) => doc.data());
+          events = snap.docs.map((doc) => ({
+            ...doc.data(),
+            _docId: doc.id,
+          }));
           render();
         });
     } else {
@@ -288,7 +296,9 @@ function openModalWithRange(startISO, endISO) {
   modal.setAttribute("aria-hidden", "false");
   if (deleteBtn) deleteBtn.style.display = "none";
 
-  setTimeout(() => eventTitle.focus(), 0);
+  if (!window.matchMedia("(max-width: 980px)").matches) {
+    setTimeout(() => eventTitle.focus(), 0);
+  }
   setupModalBackClose();
 }
 
@@ -311,7 +321,9 @@ function openModalForEdit(eventData) {
   modal.setAttribute("aria-hidden", "false");
   if (deleteBtn) deleteBtn.style.display = "inline-flex";
 
-  setTimeout(() => eventTitle.focus(), 0);
+  if (!window.matchMedia("(max-width: 980px)").matches) {
+    setTimeout(() => eventTitle.focus(), 0);
+  }
   setupModalBackClose();
 }
 
@@ -590,12 +602,15 @@ function renderSelectedDay() {
       del.textContent = "🗑️";
       del.title = "Delete event";
       del.addEventListener("click", () => {
-        if (db && currentUser && e.id) {
-          db.collection("users")
-            .doc(currentUser.uid)
-            .collection("events")
-            .doc(e.id)
-            .delete();
+        if (db && currentUser) {
+          const docId = e._docId || e.id;
+          if (docId) {
+            db.collection("users")
+              .doc(currentUser.uid)
+              .collection("events")
+              .doc(docId)
+              .delete();
+          }
         } else {
           const next = getEvents().filter((x) => x.id !== e.id);
           setEvents(next);
